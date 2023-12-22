@@ -1,0 +1,92 @@
+CREATE TABLE Dipendente (
+    id INT PRIMARY KEY,
+    nome VARCHAR(50),
+    cognome VARCHAR(50),
+    email VARCHAR(100),
+    numerotelefono VARCHAR(20),
+    data_assunzione DATE,
+    id_lavoro INT,
+    salario DECIMAL(10, 2),
+    id_manager INT,
+    id_dipartimento INT
+);
+
+CREATE TABLE Dipartimento (
+    id_dipartimento INT PRIMARY KEY,
+    nome_dip VARCHAR(50),
+    id_manager INT,
+    id_location INT
+);
+
+
+#Inserisce righe nella tabella Dipendente
+INSERT INTO Dipendente (id, nome, cognome, email, numerotelefono, data_assunzione, id_lavoro, salario, id_manager, id_dipartimento)
+VALUES
+    (1, 'Mario', 'Rossi', 'mario@email.com', '123456789', '2022-01-15', 1, 50000.00, NULL, 1),
+    (2, 'Luca', 'Bianchi', 'luca@email.com', '987654321', '2022-03-20', 2, 60000.00, 1, 2),
+    (3, 'Laura', 'Verdi', 'laura@email.com', '567891234', '2022-05-10', 1, 55000.00, 1, 1),
+    (4, 'Chiara', 'Neri', 'chiara@email.com', '234567890', '2022-07-05', 2, 62000.00, 2, 2),
+    (5, 'Paolo', 'Gialli', 'paolo@email.com', '890123456', '2022-06-12', 1, 53000.00, 3, 1),
+    (6, 'Giulia', 'Rosa', 'giulia@email.com', '789012345', '2022-11-25', 2, 58000.00, 1, 2),
+    (7, 'Alessandro', 'Blu', 'alessandro@email.com', '012345678', '2022-12-08', 1, 54000.00, 2, 1),
+    (8, 'Martina', 'Viola', 'martina@email.com', '654321098', '2013-01-30', 2, 61000.00, 3, 3),
+    (9, 'Elena', 'Arancio', 'elena@email.com', '456789012', '2023-03-14', 1, 52000.00, 4, 4),
+    (10, 'Davide', 'Marrone', 'davide@email.com', '321098765', '2023-04-22', 2, 59000.00, 5, 5);
+
+#Inserisce righe nella tabella Dipartimento
+INSERT INTO Dipartimento (id_dipartimento, nome_dip, id_manager, id_location)
+VALUES
+    (1, 'Vendite', 1, 101),
+    (2, 'Amministrazione', 2, 102),
+    (3, 'Risorse Umane', 3, 103),
+    (4, 'Vendite', 4, 104),
+    (5, 'Amministrazione', 5, 105),
+    (6, 'Risorse Umane', 6, 106),
+    (7, 'Risorse Umane', 7, 107),
+    (8, 'Amministrazione', 8, 108),
+    (9, 'Vendite', 9, 109),
+    (10, 'Vendite', 10, 110);
+
+#Visualizzare la data di assunzione dei manager e i loro id appartenenti al dipartimento ’Amministrazione’ nel formato Nome mese, giorno, anno
+SELECT DATE_FORMAT(d.data_assunzione, "%M, %D, %Y") AS Assunzione, d.id_manager
+    FROM Dipendente d
+        JOIN Dipartimento dipar
+        ON dipar.id_dipartimento = d.id 
+            WHERE dipar.nome_dip = "Amministrazione";
+
+
+#Visualizzare il nome e il cognome dei dipendenti assunti nel mese di Giugno
+SELECT d.nome, d.cognome
+    FROM Dipendente d
+        WHERE MONTH(d.data_assunzione) = 6;
+
+#Visualizzare gli anni in cui più di 10 dipendenti sono stati assunti
+SELECT YEAR(data_assunzione) AS Assunzione
+    FROM Dipendente 
+    GROUP BY YEAR(data_assunzione)
+    HAVING COUNT(data_assunzione) > 5;
+
+#Visualizzare il nome del dipartimento, il nome del manager, il salario del manager di tutti i manager la cui esperienza è maggiore di 5 anni
+SELECT dipar.nome_dip, d.nome, d.salario
+    FROM Dipartimento dipar 
+        JOIN Dipendente d 
+        ON dipar.id_dipartimento = d.id
+            WHERE DATEDIFF(CURRENT_DATE, d.data_assunzione) > 5*365;
+
+#Domande per gli altri:
+# Visualizzare il salario medio dei dipendenti per ogni anno di assunzione, e ordinare i risultati in base all'anno (crescente)
+SELECT YEAR(data_assunzione) AS Anno_Assunzione,
+    AVG(salario) 
+        FROM Dipendente
+            GROUP BY YEAR(data_assunzione)
+            ORDER BY YEAR(data_assunzione) ASC;
+
+
+# Visualizzare il salario massimo dei dipendenti in base al dipartimento e ordinare il salario in ordine crescente
+SELECT MAX(d.salario), dipar.nome_dip
+    FROM Dipendente d 
+    JOIN Dipartimento dipar
+    ON dipar.id_dipartimento = d.id
+        GROUP BY (dipar.nome_dip)
+        ORDER BY MAX(d.salario);
+
